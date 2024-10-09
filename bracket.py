@@ -29,6 +29,6 @@ class Bracket:
         
     def displayBracket(self):
         bracket = self.createBracket() 
-        print("Tournament Bracket:")
+        print("Tournament Bracket ")
         for i, match in enumerate(bracket):
             print(f"Match {i + 1}: {match[0]} vs {match[1]}")
