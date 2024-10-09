@@ -7,7 +7,7 @@ def main():
     while True:
         try:
             num_teams = int(input("Enter the number of teams. Pick [4, 8, 16, 32]: "))
-            bracket.setTeams(num_teams)
+            bracket.setNumberTeams(num_teams)
             break  
         except ValueError as e:
             print(e) 
@@ -16,8 +16,8 @@ def main():
         team_name = input(f"Enter the name for Team {i + 1}: ")
         bracket.setTeamNames(i, team_name)
 
-    # Display the bracket
-    bracket.displayBracket()
+   
+    bracket.playTournament()
 
 if __name__ == "__main__":
     main()
