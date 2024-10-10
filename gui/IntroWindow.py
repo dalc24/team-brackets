@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QApplication
 )
 from PyQt5.QtCore import Qt
-from gui.SetNumTeamWindow import BracketApp 
+from gui.SetNumTeamWidnow import BracketApp 
 
 class IntroWindow(QWidget):
     def __init__(self):
