@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QGridLayout, QMessageBox, QHBoxLayout
 from PyQt5.QtCore import Qt
 from bracket import Bracket
+from gui.BracketWidget import BracketWindow  # Import the BracketWidget class
+
 
 class TeamNamesWindow(QWidget):
     def __init__(self, num_teams, bracket):
@@ -57,7 +59,6 @@ class TeamNamesWindow(QWidget):
 
             self.teamInputs.append(team_input)
 
-
         # set grid layout spacing
         self.gridLayout.setHorizontalSpacing(10)
         self.gridLayout.setVerticalSpacing(10)
@@ -97,12 +98,18 @@ class TeamNamesWindow(QWidget):
         # set team names in the Bracket class
         for i, name in enumerate(team_names):
             self.bracket.setTeamNames(i, name)
+        
+        leftSide, rightSide = self.bracket.createBracket()
+
 
         print("Team names submitted successfully!")
         self.close()
 
-        # create bracket
-        self.bracket.playTournament()
+        # Display the bracket here
+        self.displayBracket(leftSide, rightSide)
 
-
-
+    # TeamNamesWindow.py
+    def displayBracket(self, leftSide, rightSide):
+    # Pass the leftSide and rightSide teams to the BracketWindow for visual display
+        self.bracketWidget = BracketWindow(leftSide, rightSide)  # Pass the lists directly
+        self.bracketWidget.show()

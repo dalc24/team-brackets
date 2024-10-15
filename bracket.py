@@ -142,12 +142,14 @@ class Bracket:
                 self.displayLeftBracket(leftSide)
                 leftSide = self.chooseWinners(leftSide)
                 self.displayWinners(leftSide)
+                self.winners.append(leftSide)
             
             # does right side next
             if len(rightSide) > 1:
                 self.displayRightBracket(rightSide)
                 rightSide = self.chooseWinners(rightSide)
                 self.displayWinners(rightSide)
+                self.winners.append(rightSide)
 
             roundNum += 1
 
