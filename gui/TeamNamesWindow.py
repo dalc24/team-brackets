@@ -111,5 +111,5 @@ class TeamNamesWindow(QWidget):
     # TeamNamesWindow.py
     def displayBracket(self, leftSide, rightSide):
     # Pass the leftSide and rightSide teams to the BracketWindow for visual display
-        self.bracketWidget = BracketWindow(leftSide, rightSide)  # Pass the lists directly
+        self.bracketWidget = BracketWindow(leftSide, rightSide)  # Pass the bracket as well
         self.bracketWidget.show()
