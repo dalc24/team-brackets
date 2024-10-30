@@ -12,6 +12,8 @@ class BracketWindow(QWidget):
         self.leftWinners = []
         self.rightWinners = []
 
+        self.finalMatchLabel = None 
+
         self.initUI()
 
     def initUI(self):
@@ -26,34 +28,33 @@ class BracketWindow(QWidget):
         # left and right side
         self.leftMatchLayout = QVBoxLayout()
         self.rightMatchLayout = QVBoxLayout()
-        self.mainLayout.addLayout(self.leftMatchLayout, 0, 0)
-        self.mainLayout.addLayout(self.rightMatchLayout, 0, 1)
+        self.mainLayout.addLayout(self.leftMatchLayout, 1, 0)  # Adjusted row to 1
+        self.mainLayout.addLayout(self.rightMatchLayout, 1, 1)
 
         # initial matches
         self.displayMatches(self.leftTeams, self.leftMatchLayout, "Left Matches")
         self.displayMatches(self.rightTeams, self.rightMatchLayout, "Right Matches")
 
-        #  winners display
+        # winners display
         self.winnersList = QListWidget()
         self.winnersList.setStyleSheet("background-color: #1e1e1e; color: white;")
-        self.mainLayout.addWidget(self.winnersList, 1, 0, 1, 2)
+        self.mainLayout.addWidget(self.winnersList, 2, 0, 1, 2)  # Adjusted row to 2
 
         # next round matchups
         self.nextRoundButton = QPushButton("Next Round")
         self.nextRoundButton.setStyleSheet("background-color: #4CAF50; color: white; font-weight: bold; padding: 10px;")
         self.nextRoundButton.clicked.connect(self.startNextRound)
-        self.mainLayout.addWidget(self.nextRoundButton, 2, 0, 1, 2)
+        self.mainLayout.addWidget(self.nextRoundButton, 3, 0, 1, 2)  # Adjusted row to 3
 
         # for final champ
         self.championLabel = QLabel("")
         self.championLabel.setAlignment(Qt.AlignCenter)
-        self.championLabel.setStyleSheet("font-size: 18px; font-weight: bold; color: #FFD700;")  # Gold color for the champion label
-        self.mainLayout.addWidget(self.championLabel, 3, 0, 1, 2)
+        self.championLabel.setStyleSheet("font-size: 18px; font-weight: bold; color: #FFD700;")  # Gold color
+        self.mainLayout.addWidget(self.championLabel, 4, 0, 1, 2)  # Adjusted row to 4
 
         self.show()
 
     def displayMatches(self, teams, layout, title):
-
         titleLabel = QLabel(title)
         titleLabel.setAlignment(Qt.AlignCenter)
         titleLabel.setStyleSheet("font-size: 16px; font-weight: bold; color: #FFFFFF;")
@@ -97,7 +98,6 @@ class BracketWindow(QWidget):
         line.setFrameShadow(QFrame.Sunken)
         line.setStyleSheet("color: #555;") 
 
-
         matchLayout.addWidget(team1Label)
         matchLayout.addWidget(line)
         matchLayout.addWidget(team2Label)
@@ -105,9 +105,8 @@ class BracketWindow(QWidget):
 
         return matchWidget
 
-
     def selectWinner(self, label, side):
-        label.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;") 
+        label.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;")
 
         # update winners based on side
         if side == "left" and label.text() not in self.leftWinners:
@@ -125,8 +124,7 @@ class BracketWindow(QWidget):
         if len(self.leftWinners) == 1 and len(self.rightWinners) == 1:
             self.displayFinalMatch()
             return
-        
-        # uneven winners
+
         if len(self.leftWinners) % 2 != 0 or len(self.rightWinners) % 2 != 0:
             QMessageBox.warning(self, "Cannot Proceed", "Uneven winners. Cannot create matches.")
             return
@@ -144,37 +142,51 @@ class BracketWindow(QWidget):
         self.displayMatches(self.rightTeams, self.rightMatchLayout, "Right Matches")
         self.updateWinnersList()
 
-    #Need to fix
-    """
     def displayFinalMatch(self):
-        while self.mainLayout.count():
-            item = self.mainLayout.takeAt(0)
+        # clears layout except for self.winnersList and self.championLabel
+        for i in reversed(range(self.mainLayout.count())):
+            item = self.mainLayout.itemAt(i)
             widget = item.widget()
-            if widget is not None:
+            
+            if widget and widget != self.winnersList and widget != self.championLabel:
                 widget.deleteLater()
-            else:
-                sublayout = item.layout()
-                if sublayout:
-                    while sublayout.count():
-                        subitem = sublayout.takeAt(0)
-                        subwidget = subitem.widget()
-                        if subwidget:
-                            subwidget.deleteLater()
 
-        finalTeam1 = self.leftWinners[0] if self.leftTeams else "No Team"
-        finalTeam2 = self.rightWinners[0] if self.rightTeams else "No Team"
+        # remove the final match label
+        if self.finalMatchLabel:
+            self.finalMatchLabel.deleteLater()
 
+        # create final match label
+        self.finalMatchLabel = QLabel('<span style="color: #FFD700;">Final</span> <span style="color: white;">Match</span>')
+        self.finalMatchLabel.setAlignment(Qt.AlignCenter)
+        self.finalMatchLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
+        self.mainLayout.addWidget(self.finalMatchLabel, 0, 0, 1, 2)  # Add it at the top
+
+        self.winnersList.clear()
+        # get last two teams
+        finalTeam1 = self.leftWinners[0] if self.leftWinners else "No Team"
+        finalTeam2 = self.rightWinners[0] if self.rightWinners else "No Team"
+
+        # display final match
         finalMatchBox = self.createMatchBox(finalTeam1, finalTeam2)
+        finalMatchBox.mousePressEvent = lambda event, box=finalMatchBox: self.selectWinner(finalTeam1 if finalTeam1 != "Bye" else finalTeam2)
 
         finalLayout = QVBoxLayout()
         finalLayout.addWidget(finalMatchBox)
         finalLayout.setAlignment(Qt.AlignCenter)
+        self.mainLayout.addLayout(finalLayout, 1, 0, 1, 2)
 
-        self.mainLayout.addLayout(finalLayout, 0, 0, 1, 2)
+        """
+        if not self.championLabel.parent():
+            self.mainLayout.addWidget(self.championLabel, 2, 0, 1, 2)  
+        """
 
         self.update()
         self.repaint()
-    """
+
+    def displayWinner(self, teamName):
+        if self.championLabel:
+            self.championLabel.setText(f"WINNER: {teamName}")
+
 
 
 def main():
