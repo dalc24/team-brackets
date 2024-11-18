@@ -114,7 +114,11 @@ class BracketWindow(QWidget):
         elif side == "right" and label.text() not in self.rightWinners:
             self.rightWinners.append(label.text())
 
+        # Print the winner to the terminal
+        print(f"Winner selected: {label.text()}")
+
         self.updateWinnersList()
+
 
     def updateWinnersList(self):
         self.winnersList.clear()
@@ -168,17 +172,13 @@ class BracketWindow(QWidget):
 
         # display final match
         finalMatchBox = self.createMatchBox(finalTeam1, finalTeam2)
-        finalMatchBox.mousePressEvent = lambda event, box=finalMatchBox: self.selectWinner(finalTeam1 if finalTeam1 != "Bye" else finalTeam2)
+        finalMatchBox.mousePressEvent = lambda event, box=finalMatchBox: self.displayWinner(finalTeam1 if finalTeam1 != "Bye" else finalTeam2)
 
         finalLayout = QVBoxLayout()
         finalLayout.addWidget(finalMatchBox)
         finalLayout.setAlignment(Qt.AlignCenter)
         self.mainLayout.addLayout(finalLayout, 1, 0, 1, 2)
 
-        """
-        if not self.championLabel.parent():
-            self.mainLayout.addWidget(self.championLabel, 2, 0, 1, 2)  
-        """
 
         self.update()
         self.repaint()
