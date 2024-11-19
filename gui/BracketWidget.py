@@ -11,6 +11,7 @@ class BracketWindow(QWidget):
         
         self.leftWinners = []
         self.rightWinners = []
+        self.finalWinner = []
 
         self.finalMatchLabel = None 
 
@@ -147,45 +148,68 @@ class BracketWindow(QWidget):
         self.updateWinnersList()
 
     def displayFinalMatch(self):
-        # clears layout except for self.winnersList and self.championLabel
-        for i in reversed(range(self.mainLayout.count())):
-            item = self.mainLayout.itemAt(i)
-            widget = item.widget()
-            
-            if widget and widget != self.winnersList and widget != self.championLabel:
-                widget.deleteLater()
+        # Clear layout except for specific widgets
+        self.clearLayoutExcept(self.mainLayout, [self.winnersList, self.championLabel])
 
-        # remove the final match label
+        # Remove the final match label if it exists
         if self.finalMatchLabel:
             self.finalMatchLabel.deleteLater()
 
-        # create final match label
+        # Create and style the final match label
         self.finalMatchLabel = QLabel('<span style="color: #FFD700;">Final</span> <span style="color: white;">Match</span>')
         self.finalMatchLabel.setAlignment(Qt.AlignCenter)
         self.finalMatchLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
         self.mainLayout.addWidget(self.finalMatchLabel, 0, 0, 1, 2)  # Add it at the top
 
+        # Clear winners list and prepare final teams
         self.winnersList.clear()
-        # get last two teams
         finalTeam1 = self.leftWinners[0] if self.leftWinners else "No Team"
         finalTeam2 = self.rightWinners[0] if self.rightWinners else "No Team"
 
-        # display final match
+        # Create final match box
         finalMatchBox = self.createMatchBox(finalTeam1, finalTeam2)
-        finalMatchBox.mousePressEvent = lambda event, box=finalMatchBox: self.displayWinner(finalTeam1 if finalTeam1 != "Bye" else finalTeam2)
 
+        # Assign mousePressEvent to the team labels
+        labels = finalMatchBox.findChildren(QLabel)
+        for label in labels:
+            label.mousePressEvent = lambda event, lbl=label: self.selectFinalWinnerFromLabel(lbl)
+
+        # Add final match box to the layout
         finalLayout = QVBoxLayout()
         finalLayout.addWidget(finalMatchBox)
         finalLayout.setAlignment(Qt.AlignCenter)
         self.mainLayout.addLayout(finalLayout, 1, 0, 1, 2)
 
+    def selectFinalWinnerFromLabel(self, label):
+        # Reset styles for both labels in the final match box
+        parentBox = label.parent()
+        labels = parentBox.findChildren(QLabel)
+        for lbl in labels:
+            lbl.setStyleSheet("background-color: #3b3b3b; padding: 8px; color: white; border-radius: 4px;")
 
-        self.update()
-        self.repaint()
+        # Highlight the selected label
+        label.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;")
+
+        # Update the final winner
+        self.finalWinner = [label.text()]
+        self.winnersList.clear()
+        self.winnersList.addItems(self.finalWinner)
+        self.displayWinner(label.text())
 
     def displayWinner(self, teamName):
         if self.championLabel:
             self.championLabel.setText(f"WINNER: {teamName}")
+
+
+
+
+    def clearLayoutExcept(self, layout, keepWidgets):
+        for i in reversed(range(layout.count())):
+            item = layout.itemAt(i)
+            widget = item.widget()
+            if widget and widget not in keepWidgets:
+                widget.deleteLater()
+
 
 
 
