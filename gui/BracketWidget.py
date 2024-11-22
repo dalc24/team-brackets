@@ -3,6 +3,7 @@ import random
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QGridLayout, QFrame, QListWidget, QPushButton, QMessageBox
 from PyQt5.QtCore import Qt
 
+
 class BracketWindow(QWidget):
     def __init__(self, leftSide, rightSide):
         super().__init__()
@@ -148,33 +149,33 @@ class BracketWindow(QWidget):
         self.updateWinnersList()
 
     def displayFinalMatch(self):
-        # Clear layout except for specific widgets
+        # clear layout except for specific widgets
         self.clearLayoutExcept(self.mainLayout, [self.winnersList, self.championLabel])
 
-        # Remove the final match label if it exists
+        # remove the final match label if it exists
         if self.finalMatchLabel:
             self.finalMatchLabel.deleteLater()
 
-        # Create and style the final match label
+        # create and style the final match label
         self.finalMatchLabel = QLabel('<span style="color: #FFD700;">Final</span> <span style="color: white;">Match</span>')
         self.finalMatchLabel.setAlignment(Qt.AlignCenter)
         self.finalMatchLabel.setStyleSheet("font-size: 24px; font-weight: bold;")
         self.mainLayout.addWidget(self.finalMatchLabel, 0, 0, 1, 2)  # Add it at the top
 
-        # Clear winners list and prepare final teams
+        # clear winners list and prepare final teams
         self.winnersList.clear()
         finalTeam1 = self.leftWinners[0] if self.leftWinners else "No Team"
         finalTeam2 = self.rightWinners[0] if self.rightWinners else "No Team"
 
-        # Create final match box
+        # create final match box
         finalMatchBox = self.createMatchBox(finalTeam1, finalTeam2)
 
-        # Assign mousePressEvent to the team labels
+        # assign mousePressEvent to the team labels
         labels = finalMatchBox.findChildren(QLabel)
         for label in labels:
             label.mousePressEvent = lambda event, lbl=label: self.selectFinalWinnerFromLabel(lbl)
 
-        # Add final match box to the layout
+        # add final match box to the layout
         finalLayout = QVBoxLayout()
         finalLayout.addWidget(finalMatchBox)
         finalLayout.setAlignment(Qt.AlignCenter)
@@ -197,11 +198,22 @@ class BracketWindow(QWidget):
         self.displayWinner(label.text())
 
     def displayWinner(self, teamName):
+
+
         if self.championLabel:
             self.championLabel.setText(f"WINNER: {teamName}")
+        
 
+        # Create the new button
+        nextButton = QPushButton("New Bracket")
+        nextButton.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;")
+        nextButton.setMaximumSize(100, 50)  # Minimum width and height
 
+        nextButton.clicked.connect(self.goToSetNums)
 
+        # Add the button to the right of the champion label
+        self.mainLayout.addWidget(nextButton, 4, 1)
+        
 
     def clearLayoutExcept(self, layout, keepWidgets):
         for i in reversed(range(layout.count())):
@@ -209,6 +221,13 @@ class BracketWindow(QWidget):
             widget = item.widget()
             if widget and widget not in keepWidgets:
                 widget.deleteLater()
+
+    def goToSetNums(self):
+        from gui.SetNumTeamWidnow import BracketApp  # Import locally to avoid circular dependency
+        self.setNumTeamNumber = BracketApp()
+        self.setNumTeamNumber.show()
+        self.close()
+
 
 
 
