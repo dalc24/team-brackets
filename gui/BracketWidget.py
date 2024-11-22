@@ -14,6 +14,8 @@ class BracketWindow(QWidget):
         self.rightWinners = []
         self.finalWinner = []
 
+        
+
         self.finalMatchLabel = None 
 
         self.initUI()
@@ -108,19 +110,34 @@ class BracketWindow(QWidget):
         return matchWidget
 
     def selectWinner(self, label, side):
+        selected_team = label.text()
+
+        # opponent's team label 
+        opponent_label = label.parent().findChildren(QLabel)
+        opponent_label.remove(label)  
+        opponent_team = opponent_label[0].text()
+
+        # reset style
+        if opponent_label[0].styleSheet() == "background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;":
+            opponent_label[0].setStyleSheet("background-color: #3b3b3b; padding: 8px; color: white; border-radius: 4px;")
+        
+        # style of selected label
         label.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;")
 
-        # update winners based on side
-        if side == "left" and label.text() not in self.leftWinners:
-            self.leftWinners.append(label.text())
-        elif side == "right" and label.text() not in self.rightWinners:
-            self.rightWinners.append(label.text())
+        # remove the opponent from the winners list if already theree
+        if side == "left" and opponent_team in self.leftWinners:
+            self.leftWinners.remove(opponent_team)
+        elif side == "right" and opponent_team in self.rightWinners:
+            self.rightWinners.remove(opponent_team)
 
-        # Print the winner to the terminal
-        print(f"Winner selected: {label.text()}")
+        # add to winners list
+        if side == "left" and selected_team not in self.leftWinners:
+            self.leftWinners.append(selected_team)
+        elif side == "right" and selected_team not in self.rightWinners:
+            self.rightWinners.append(selected_team)
 
+        print(f"Winner selected: {selected_team}")
         self.updateWinnersList()
-
 
     def updateWinnersList(self):
         self.winnersList.clear()
@@ -152,7 +169,7 @@ class BracketWindow(QWidget):
         # clear layout except for specific widgets
         self.clearLayoutExcept(self.mainLayout, [self.winnersList, self.championLabel])
 
-        # remove the final match label if it exists
+        # remove final match label 
         if self.finalMatchLabel:
             self.finalMatchLabel.deleteLater()
 
@@ -182,16 +199,14 @@ class BracketWindow(QWidget):
         self.mainLayout.addLayout(finalLayout, 1, 0, 1, 2)
 
     def selectFinalWinnerFromLabel(self, label):
-        # Reset styles for both labels in the final match box
         parentBox = label.parent()
+
         labels = parentBox.findChildren(QLabel)
         for lbl in labels:
             lbl.setStyleSheet("background-color: #3b3b3b; padding: 8px; color: white; border-radius: 4px;")
-
-        # Highlight the selected label
         label.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;")
 
-        # Update the final winner
+        # update the final winner
         self.finalWinner = [label.text()]
         self.winnersList.clear()
         self.winnersList.addItems(self.finalWinner)
@@ -199,22 +214,17 @@ class BracketWindow(QWidget):
 
     def displayWinner(self, teamName):
 
-
         if self.championLabel:
             self.championLabel.setText(f"WINNER: {teamName}")
         
-
-        # Create the new button
+        # create the new button
         nextButton = QPushButton("New Bracket")
         nextButton.setStyleSheet("background-color: #4CAF50; padding: 8px; color: white; border-radius: 4px;")
         nextButton.setMaximumSize(100, 50)  # Minimum width and height
-
         nextButton.clicked.connect(self.goToSetNums)
 
-        # Add the button to the right of the champion label
         self.mainLayout.addWidget(nextButton, 4, 1)
         
-
     def clearLayoutExcept(self, layout, keepWidgets):
         for i in reversed(range(layout.count())):
             item = layout.itemAt(i)
@@ -223,12 +233,10 @@ class BracketWindow(QWidget):
                 widget.deleteLater()
 
     def goToSetNums(self):
-        from gui.SetNumTeamWidnow import BracketApp  # Import locally to avoid circular dependency
+        from gui.SetNumTeamWidnow import BracketApp  
         self.setNumTeamNumber = BracketApp()
         self.setNumTeamNumber.show()
         self.close()
-
-
 
 
 
